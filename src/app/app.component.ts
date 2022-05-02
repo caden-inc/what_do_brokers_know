@@ -103,7 +103,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       this.printInput(input);
 
       if (input.toLowerCase() == 'n' || input.toLowerCase() == 'no') {
-        await this.terminate();
+        await this.terminateNoPermissions();
       } else {
         await this.promptInput(EMAIL_PROMPT);
       }
@@ -218,6 +218,53 @@ export class AppComponent implements OnInit, AfterViewChecked {
     ]);
     await this.typeShare();
     await this.promptOptOut();
+  }
+
+  private async terminateNoPermissions() {
+    await this.addLine('TERMINATING C:\\\\creep.exe', 'red');
+    await this.addLine('TERMINATED.', '#16fe21');
+
+    await this.addLine(`Not sure what this is?`);
+    await this.addLine(undefined, undefined, [
+      {
+        text: `We're `
+      },
+      {
+        text: 'Caden',
+        link: 'https://www.caden.io'
+      },
+      {
+        text: `, a startup in NYC that is building a platform to help folks like you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place.`
+      }
+    ]);
+    await this.addLine(`We build this guerilla art project to demonstrate one of many issues around personal data and the endless surveillance that you never signed up for.`);
+    await this.addLine(undefined, undefined, [
+      {
+        text: `Consider joining our Beta at `
+      },
+      {
+        text: 'caden.io',
+        link: 'https://www.caden.io'
+      },
+      {
+        text: ' or you can also follow our journey on '
+      },
+      {
+        text: 'Instagram',
+        link: 'https://www.instagram.com/caden.io'
+      },
+      {
+        text: ' and '
+      },
+      {
+        text: 'Twitter',
+        link: 'https://twitter.com/cadenhq'
+      },
+      {
+        text: '.'
+      }
+    ]);
+    await this.typeShare();
   }
 
   private async terminate() {
@@ -690,7 +737,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     await this.addLine(undefined, undefined, [
       {
         text: `SHARE TO TWITTER`,
-        link: 'https://twitter.com/intent/tweet?url=http%3A%2F%2Fismydataforsale.com&text=What%20do%20data%20brokers%20know?'
+        link: 'https://twitter.com/intent/tweet?url=ismydataforsale.com&text=Check%20to%20see%20if%20your%20data%20is%20for%20sale%3A%20%0A'
       }
     ]);
 
