@@ -8,8 +8,9 @@
 
       <span *ngIf="!this.typedText[i].isImage">
         <span *ngFor="let t of this.typedText[i].text" [ngStyle]="{'color': t.color ? t.color : '#c3ef8f'}">
-          <a *ngIf="t.link" target="_blank" href="{{ t.link }}">{{ t.text }}</a>
-          <span [ngClass]="t.click ? 'clickable' : ''" *ngIf="!t.link" (click)="t.click ? t.click : ''">{{ t.text }}</span>
+          <a [attr.download]="t.isDownload ? 'ismydataforsale.png' : null" *ngIf="t.link" target="_blank" href="{{ t.link }}">{{ t.text }}</a>
+          <span *ngIf="t.isNativeShare" class="clickable" (click)="this.share()">{{ t.text }}</span>
+          <span *ngIf="!t.link && !t.isNativeShare">{{ t.text }}</span>
         </span>
       </span>
     </p>

@@ -4,7 +4,7 @@ import { OnInit } from '@angular/core';
 import { GeolocateService } from './geolocate.service';
 import { ApiService } from './api.service';
 
-const EMAIL_PROMPT = "Enter your email to get started > ".toUpperCase();
+const EMAIL_PROMPT = "ENTER YOUR EMAIL TO GET STARTED > ";
 
 const INIT_TEXT =  
   `**********************************************
@@ -119,11 +119,11 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
       this.printInput(input);
 
-      if (input.toLowerCase() == 'y' || input.toLowerCase() == 'yes') {
+      if (input.toLowerCase() == 'n' || input.toLowerCase() == 'no') {
         await this.api.optOut(this.email);
         await this.typeLine(`OK, YOU'VE SUCCESSFULLY OPTED OUT.`);
       } else {
-        // todo
+        await this.typeLine(`GREAT, WE'LL LET YOU KNOW WHEN WE LAUNCH!`)
       }
     } else if (this.isEmailSubmitted) {
       await this.handleInput();
@@ -182,7 +182,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     await this.addLine('TERMINATING C:\\\\creep.exe', '#f32a9d');
     await this.addLine('TERMINATED.', '#16fe21');
 
-    await this.addLine(`Well look at that, we couldn’t find you! (yet)`);
+    await this.addLine(`Well look at that, we couldn’t find you! (yet)`, undefined, undefined, 750);
     await this.addLine(`However, it may only be a matter of time before big data brokers slurp up your personal data and list it for sale on the open web for a fraction of a penny.`);
     await this.addLine(undefined, undefined, [
       {
@@ -195,8 +195,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
       {
         text: `, are a startup in NYC that is building a platform to help you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place.`
       }
-    ]);
-    await this.addLine(`We’ll let you know when our Beta launches this summer.`);
+    ], 750);
+    await this.addLine(`We’ll let you know when our Beta launches this summer.`, undefined, undefined, 750);
     await this.addLine(undefined, undefined, [
       {
         text: `You can also follow our journey on `
@@ -215,7 +215,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       {
         text: '.'
       }
-    ]);
+    ], 750);
     await this.typeShare();
     await this.promptOptOut();
   }
@@ -224,7 +224,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     await this.addLine('TERMINATING C:\\\\creep.exe', 'red');
     await this.addLine('TERMINATED.', '#16fe21');
 
-    await this.addLine(`Not sure what this is?`);
+    await this.addLine(`Not sure what this is?`, undefined, undefined, 750);
     await this.addLine(undefined, undefined, [
       {
         text: `We're `
@@ -236,8 +236,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
       {
         text: `, a startup in NYC that is building a platform to help folks like you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place.`
       }
-    ]);
-    await this.addLine(`We build this guerilla art project to demonstrate one of many issues around personal data and the endless surveillance that you never signed up for.`);
+    ], 750);
+    await this.addLine(`We build this guerilla art project to demonstrate one of many issues around personal data and the endless surveillance that you never signed up for.`, undefined, undefined, 750);
     await this.addLine(undefined, undefined, [
       {
         text: `Consider joining our Beta at `
@@ -263,7 +263,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       {
         text: '.'
       }
-    ]);
+    ], 750);
     await this.typeShare();
   }
 
@@ -271,8 +271,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
     await this.addLine('TERMINATING C:\\\\creep.exe', 'red');
     await this.addLine('TERMINATED.', '#16fe21');
 
-    await this.addLine(`Want to know WTF just happened?`);
-    await this.addLine(`This is just a tiny snapshot of your data that is for sale on the open web. It cost us a fraction of a penny to buy.`);
+    await this.addLine(`Want to know WTF just happened?`, undefined, undefined, 750);
+    await this.addLine(`This is just a tiny snapshot of your data that is for sale on the open web. It cost us a fraction of a penny to buy.`, undefined, undefined, 750);
     await this.addLine(undefined, undefined, [
       {
         text: `We're `
@@ -284,8 +284,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
       {
         text: `, a startup in NYC that is building a platform to help folks like you control, own, protect and make money off your data, all while protecting your privacy. The internet is riddled with all sorts of problems and we are working to make the internet a better place.`
       }
-    ]);
-    await this.addLine(`We’ll let you know when our Beta launches this summer.`);
+    ], 750);
+    await this.addLine(`We’ll let you know when our Beta launches this summer.`, undefined, undefined, 750);
     await this.addLine(undefined, undefined, [
       {
         text: `You can also follow our journey on `
@@ -304,9 +304,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
       {
         text: '.'
       }
-    ]);
-    await this.addLine(`Don’t worry, we didn’t do anything nefarious with the data we showed you above. This was just a creepy art project to demonstrate one of many issues around personal data and the endless surveillance that you never signed up for.`)
-    await this.addLine(`We look forward to solving these problems together.`);
+    ], 750);
+    await this.addLine(`Don’t worry, we didn’t do anything nefarious with the data we showed you above. This was just a creepy art project to demonstrate one of many issues around personal data and the endless surveillance that you never signed up for.`, undefined, undefined, 750)
+    await this.addLine(`We look forward to solving these problems together.`, undefined, undefined, 750);
     await this.typeShare();
     await this.promptOptOut();
   }
@@ -334,6 +334,11 @@ export class AppComponent implements OnInit, AfterViewChecked {
     });
 
     if (this.isValidEmail) {
+      // datalayer
+      const script = document.createElement('script');
+      script.innerHTML = 'dataLayer.push({ event: "email_submit", });';
+      document.head.appendChild(script);
+
       await this.typeLine('SEARCHING...', undefined, 'lightsea#16fe21');
       await this.pullData();
       await this.typeLine('BUYING YOUR DATA...', undefined, 'lightsea#16fe21');
@@ -727,6 +732,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   async typeShare() {
+    await new Promise(f => setTimeout(f, 500));
     await this.addLine('TELL A FRIEND ABOUT THIS PROJECT.');
     await this.addLine(undefined, undefined, [
       {
@@ -744,11 +750,19 @@ export class AppComponent implements OnInit, AfterViewChecked {
     if (this.canNativeShare) {
       await this.addLine(undefined, undefined, [
         {
-          text: 'Share',
-          click: this.share,
+          text: 'SHARE EVERYWHERE ELSE',
+          isNativeShare: true,
         }
       ]);
     }
+
+    await this.addLine(undefined, undefined, [
+      {
+        text: 'DOWNLOAD A SHAREABLE IMAGE',
+        link: './assets/ismydataforsale-shareable.png',
+        isDownload: true
+      }
+    ])
   }
 
   async typeGeoLocation() {
@@ -790,8 +804,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  async addLine(line?: string, color?: string, styledLine?: Array<any>) {
-    await new Promise(f => setTimeout(f, 500));
+  async addLine(line?: string, color?: string, styledLine?: Array<any>, timeout?: number) {
+    await new Promise(f => setTimeout(f, timeout ? timeout : 500));
 
     if (color) {
       this.typingColor = color;
@@ -872,9 +886,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     const navigator = window.navigator as any;
 
     if (navigator.share) {
-      navigator.share({title: "What Do Data Brokes Know?"});
-    } else {
-
+      navigator.share({title: "Is My Data For Sale?", url: "http://ismydataforsale.com/"});
     }
   }
 

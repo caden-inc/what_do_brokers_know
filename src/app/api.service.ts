@@ -34,6 +34,8 @@ export class ApiService {
       email: email
     };
 
-    const res = await firstValueFrom(this.http.post(this.url + "opt-out", body));
+    const res = await firstValueFrom(this.http.post(this.url + "/opt-out", body));
+
+    return res;
   }
 }
