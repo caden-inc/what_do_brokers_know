@@ -38,6 +38,8 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
   isOptOutPrompt: boolean = false;
   isTermsPrompt: boolean = true;
   isLoadingIg: boolean = false;
+  isVerified: boolean = false;
+  promptInputType: string = 'text';
   email: string = '';
 
   typed: Typed = new Typed({callback: (text) => this.typingText = text});
@@ -105,7 +107,7 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
       if (input.toLowerCase() == 'n' || input.toLowerCase() == 'no') {
         await this.terminateNoPermissions();
       } else {
-        await this.promptInput(EMAIL_PROMPT);
+        await this.promptInput(EMAIL_PROMPT, 'email');
       }
 
     } else if (this.isOptOutPrompt) {
@@ -125,11 +127,14 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
       } else {
         await this.typeLine(`GREAT, WE'LL LET YOU KNOW WHEN WE LAUNCH!`)
       }
-    } else if (this.isEmailSubmitted) {
+    } else if (this.isVerified && this.isEmailSubmitted) {
       await this.handleInput();
+    } else if (!this.isVerified && this.isEmailSubmitted) {
+      this.printInput(this.inputText);
+      await this.submitOtp();
     } else if (!this.inputText.replace(/\s/g, '').length) {
       this.printInput(this.inputText);
-      await this.promptInput(EMAIL_PROMPT);
+      await this.promptInput(EMAIL_PROMPT, 'email');
     } else {
       await this.submitEmail()
     }
@@ -339,43 +344,60 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
       script.innerHTML = 'dataLayer.push({ event: "email_submit", });';
       document.head.appendChild(script);
 
-      await this.typeLine('SEARCHING...', undefined, 'lightsea#16fe21');
-      await this.pullData();
-      await this.typeLine('BUYING YOUR DATA...', undefined, 'lightsea#16fe21');
-  
-      if (this.hasData) {
-        this.pullDataSuccess(); 
-      } else {
-        // Second failed email
-        if (this.failedEmail) {
-          await this.failedTerminate();
-        } else {
-            // request another email
-          if (this.data && this.data.name) {
-            this.typedText.push({
-              text: [{
-                text: `WOW, ${this.data.name}... YOU'RE WELL HIDDEN! WE COULDN'T BUY ANY DATA.`,
-                color: '#c3ef8f'
-              }]
-            });
-          } else {
-            this.typedText.push({
-              text: [{
-                text: `WOW... YOU'RE WELL HIDDEN! WE COULDN'T BUY ANY DATA.`,
-                color: '#c3ef8f'
-              }]
-            });
-          }
-          
-  
-          this.isEmailSubmitted = false;
-          this.failedEmail = true;
-          this.promptInput('TRY ANOTHER EMAIL ADDRESS > ');
-        }
-      }
+      const otpRes = await this.api.sendOtp(this.email);
+      console.log(otpRes);
+      this.isEmailSubmitted = true;
+      this.promptInput('ENTER THE OTP CODE SENT TO YOUR EMAIL > ', 'number')
     } else {
       // invalid email format
       await this.invalidEmailPrompt();
+    }
+  }
+
+  private async submitOtp() {
+    const otp: number = parseInt(this.inputText);
+
+    if (this.inputText.length == 6 && otp != NaN) {
+      await this.typeLine('VERIFYING YOUR EMAIL...', undefined, 'lightsea#16fe21');
+      const isValidOtp = await this.pullData(this.email, otp);
+
+      if (isValidOtp) {
+        await this.typeLine('SEARCHING...', undefined, 'lightsea#16fe21');
+        await this.typeLine('BUYING YOUR DATA...', undefined, 'lightsea#16fe21');
+
+        if (this.hasData) {
+          this.pullDataSuccess(); 
+        } else {
+          // Second failed email
+          if (this.failedEmail) {
+            await this.failedTerminate();
+          } else {
+              // request another email
+            if (this.data && this.data.name) {
+              this.typedText.push({
+                text: [{
+                  text: `WOW, ${this.data.name}... YOU'RE WELL HIDDEN! WE COULDN'T BUY ANY DATA.`,
+                  color: '#c3ef8f'
+                }]
+              });
+            } else {
+              this.typedText.push({
+                text: [{
+                  text: `WOW... YOU'RE WELL HIDDEN! WE COULDN'T BUY ANY DATA.`,
+                  color: '#c3ef8f'
+                }]
+              });
+            }
+          
+            this.isEmailSubmitted = false;
+            this.failedEmail = true;
+            this.promptInput('TRY ANOTHER EMAIL ADDRESS > ', 'email');
+          }
+        }
+      }
+    } else {
+      await this.typeLine(`${this.inputText} IS NOT A VALID OTP CODE.`);
+      await this.promptInput('TRY AGAIN > ', 'number');
     }
   }
 
@@ -667,12 +689,11 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
     await this.terminate();
   }
 
+  private async pullData(email: string, otp: number) {
+    const res: any = await this.api.requestByEmail(email, otp, false);
 
-  // TODO pull real data
-  private async pullData() {
-    const res: any = await this.api.requestByEmail(this.inputText, false);
-
-    if (res.hasOwnProperty('body') && Object.keys(res['body']).length != 0) {
+    if (res.statusCode == 200 && res.hasOwnProperty('body') && Object.keys(res['body']).length != 0) {
+      this.isVerified = true;
       this.data = res['body'];
 
       if (this.data.instagram) {
@@ -685,6 +706,13 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
           }
         });
       }
+
+      return true;
+    } else {
+      this.typeLine(`YOU ENTERED AN INCORRECT OTP CODE.`);
+      this.promptInput(`LET'S TRY AGAIN > `, 'number');
+
+      return false;
     }
   }
 
@@ -696,7 +724,11 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  private promptInput(prefix?: string) {
+  private promptInput(prefix?: string, type?: string) {
+    if (type) {
+      this.promptInputType = type;
+    }
+
     if (prefix) {
       this.prefixText = prefix;
     }

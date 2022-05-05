@@ -10,7 +10,7 @@ export class ApiService {
 
   constructor(private http: HttpClient) { }
 
-  async requestByEmail(email: string, isDummy?: boolean) {
+  async requestByEmail(email: string, otp: number, isDummy?: boolean) {
     const body: any = {"email": email};
 
     if (isDummy) {
@@ -35,6 +35,16 @@ export class ApiService {
     };
 
     const res = await firstValueFrom(this.http.post(this.url + "/opt-out", body));
+
+    return res;
+  }
+
+  async sendOtp(email: string) {
+    const body: any = {
+      email: email
+    };
+
+    const res = await firstValueFrom(this.http.post(this.url + "/send-email-confirm", body));
 
     return res;
   }
