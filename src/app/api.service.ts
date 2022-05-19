@@ -11,7 +11,7 @@ export class ApiService {
   constructor(private http: HttpClient) { }
 
   async requestByEmail(email: string, otp: number, isDummy?: boolean) {
-    const body: any = {"email": email};
+    const body: any = {"email": email, "otp": otp};
 
     if (isDummy) {
       body['isDummy'] = true;

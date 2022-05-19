@@ -1,0 +1,29 @@
+<div style="display: flex; overflow:hidden;">
+    <div #scrollable id="terminal_container">
+    <div class="container">
+      <p *ngFor="let item of this.typedText; let i = index"  [style.animation]="this.typedText[i].isImage && 'none'" [style.filter]="this.typedText[i].isImage && 'blur(0px)'">
+        <span *ngIf="this.typedText[i].isImage"  [style.animation]="this.typedText[i].isImage && 'none'" [style.filter]="this.typedText[i].isImage && 'blur(0px)'">
+          <img style="filter: blur(0px)!Important; animation: none; max-height: 500px; max-width: 90%;" src="data:image/jpeg;base64,{{ this.typedText[i].src }}"> 
+        </span>
+  
+        <span *ngIf="!this.typedText[i].isImage">
+          <span *ngFor="let t of this.typedText[i].text" [ngStyle]="{'color': t.color ? t.color : '#c3ef8f'}">
+            <a [attr.download]="t.isDownload ? 'ismydataforsale.png' : null" *ngIf="t.link" target="_blank" href="{{ t.link }}">{{ t.text }}</a>
+            <span *ngIf="t.isNativeShare" class="clickable" (click)="this.share()">{{ t.text }}</span>
+            <span *ngIf="t.isResendCode" class="clickable" (click)="this.resendCode()">{{ t.text }}</span>
+            <span *ngIf="!t.link && !t.isNativeShare && !t.isResendCode">{{ t.text }}</span>
+          </span>
+        </span>
+      </p>
+      <p [ngStyle]="{ 'color': typingColor ? typingColor : '#c3ef8f' }">
+        {{ this.typingText }}
+      </p>
+      
+      <div *ngIf="readyForInput" id="input_container">
+        <span id="prefix">{{ this.prefixText }}</span><span>&nbsp;</span><input *ngIf="!isMobileScreen" type="{{ this.isEmailSubmitted ? 'text' : 'email' }}" id="terminal_input" [(ngModel)]="this.inputText" autofocus>
+      </div>
+      <div *ngIf="readyForInput && isMobileScreen">
+        <input style="background-color: #4e4e4e;" type="{{ this.promptInputType ? this.promptInputType : 'text' }}" id="terminal_input" [(ngModel)]="this.inputText">
+      </div>
+    </div>
+  </div>

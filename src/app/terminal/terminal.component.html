@@ -10,7 +10,8 @@
         <span *ngFor="let t of this.typedText[i].text" [ngStyle]="{'color': t.color ? t.color : '#c3ef8f'}">
           <a [attr.download]="t.isDownload ? 'ismydataforsale.png' : null" *ngIf="t.link" target="_blank" href="{{ t.link }}">{{ t.text }}</a>
           <span *ngIf="t.isNativeShare" class="clickable" (click)="this.share()">{{ t.text }}</span>
-          <span *ngIf="!t.link && !t.isNativeShare">{{ t.text }}</span>
+          <span *ngIf="t.isResendCode" class="clickable" (click)="this.resendCode()">{{ t.text }}</span>
+          <span *ngIf="!t.link && !t.isNativeShare && !t.isResendCode">{{ t.text }}</span>
         </span>
       </span>
     </p>

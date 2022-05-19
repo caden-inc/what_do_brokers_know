@@ -8,6 +8,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { GeoerrorComponent } from './geoerror/geoerror.component';
 import { TerminalComponent } from './terminal/terminal.component';
+import { DemoComponent } from './demo/demo.component';
 
 const routes: Routes = [
   {
@@ -19,6 +20,10 @@ const routes: Routes = [
     component: GeoerrorComponent
   }, 
   {
+    path: 'demo',
+    component: DemoComponent
+  },
+  {
     path: '**',
     redirectTo: ''
   }
@@ -28,7 +33,8 @@ const routes: Routes = [
   declarations: [
     AppComponent,
     GeoerrorComponent,
-    TerminalComponent
+    TerminalComponent,
+    DemoComponent
   ],
   imports: [
     BrowserModule,

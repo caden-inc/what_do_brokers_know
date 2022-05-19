@@ -17,10 +17,10 @@ const LOAD_TEXT = `LOADING DATA BROKER DATABASE...`;
 
 @Component({
   selector: 'app-terminal',
-  templateUrl: './terminal.component.html',
-  styleUrls: ['./terminal.component.scss']
+  templateUrl: './demo.component.html',
+  styleUrls: ['./demo.component.scss']
 })
-export class TerminalComponent implements OnInit, AfterViewChecked {
+export class DemoComponent implements OnInit, AfterViewChecked {
   @ViewChild('input') private inputField!: ElementRef;
   
   typedText: Array<any> = [];
@@ -339,12 +339,6 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
     });
 
     if (this.isValidEmail) {
-      // datalayer
-      const script = document.createElement('script');
-      script.innerHTML = 'dataLayer.push({ event: "email_submit", });';
-      document.head.appendChild(script);
-
-      await this.api.sendOtp(this.email);
       this.isEmailSubmitted = true;
       this.promptInput('ENTER THE 3-DIGIT CODE SENT TO YOUR EMAIL > ', 'number');
     } else {
@@ -689,7 +683,7 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
   }
 
   private async pullData(email: string, otp: number): Promise<boolean> {
-    const res: any = await this.api.requestByEmail(email, otp, false);
+    const res: any = await this.api.requestByEmail(email, otp, true);
 
     console.log(res);
 
@@ -740,7 +734,6 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
   }
 
   async resendCode() {
-    await this.api.sendOtp(this.email);
     this.promptInput('ENTER THE 3-DIGIT CODE SENT TO YOUR EMAIL > ', 'number');
   }
 
