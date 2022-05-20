@@ -38,7 +38,7 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
   isOptOutPrompt: boolean = false;
   isTermsPrompt: boolean = true;
   isLoadingIg: boolean = false;
-  isVerified: boolean = false;
+  // isVerified: boolean = false;
   promptInputType: string = 'text';
   email: string = '';
 
@@ -127,11 +127,12 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
       } else {
         await this.typeLine(`GREAT, WE'LL LET YOU KNOW WHEN WE LAUNCH!`)
       }
-    } else if (this.isVerified && this.isEmailSubmitted) {
+    // } else if (this.isVerified && this.isEmailSubmitted) {
+    } else if (this.isEmailSubmitted) {
       await this.handleInput();
-    } else if (!this.isVerified && this.isEmailSubmitted) {
-      this.printInput(this.inputText);
-      await this.submitOtp();
+    // } else if (!this.isVerified && this.isEmailSubmitted) {
+    //   this.printInput(this.inputText);
+    //   await this.submitOtp();
     } else if (!this.inputText.replace(/\s/g, '').length) {
       this.printInput(this.inputText);
       this.promptInput(EMAIL_PROMPT, 'email');
@@ -324,6 +325,7 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
 
   private async submitEmail() {
     this.email = this.inputText.toLowerCase();
+    console.log(this.email);
     
     this.typedText.push({
       text: [
@@ -344,9 +346,46 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
       script.innerHTML = 'dataLayer.push({ event: "email_submit", });';
       document.head.appendChild(script);
 
-      await this.api.sendOtp(this.email);
-      this.isEmailSubmitted = true;
-      this.promptInput('ENTER THE 3-DIGIT CODE SENT TO YOUR EMAIL > ', 'number');
+      const res = await this.pullData(this.email, 0);
+
+      if (res) {
+        await this.typeLine('SEARCHING...', undefined, 'lightsea#16fe21');
+        await this.typeLine('BUYING YOUR DATA...', undefined, 'lightsea#16fe21');
+
+        if (this.hasData) {
+          this.pullDataSuccess(); 
+        } else {
+          // Second failed email
+          if (this.failedEmail) {
+            await this.failedTerminate();
+          } else {
+              // request another email
+            if (this.data && this.data.name) {
+              this.typedText.push({
+                text: [{
+                  text: `WOW, ${this.data.name}... YOU'RE WELL HIDDEN! WE COULDN'T BUY ANY DATA.`,
+                  color: '#c3ef8f'
+                }]
+              });
+            } else {
+              this.typedText.push({
+                text: [{
+                  text: `WOW... YOU'RE WELL HIDDEN! WE COULDN'T BUY ANY DATA.`,
+                  color: '#c3ef8f'
+                }]
+              });
+            }
+          
+            this.isEmailSubmitted = false;
+            this.failedEmail = true;
+            this.promptInput('TRY ANOTHER EMAIL ADDRESS > ', 'email');
+          }
+        }
+      }
+
+      // await this.api.sendOtp(this.email);
+      // this.isEmailSubmitted = true;
+      // this.promptInput('ENTER THE 3-DIGIT CODE SENT TO YOUR EMAIL > ', 'number');
     } else {
       // invalid email format
       await this.invalidEmailPrompt();
@@ -684,17 +723,15 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
       }
     }
 
-    await this.typeLine(`Ok, enough of that, we're officially creeped out.`.toUpperCase())
+    await this.typeLine(`OK, ENOUGH OF THAT, WE'RE OFFICIALLY CREEPED OUT.`);
     await this.terminate();
   }
 
   private async pullData(email: string, otp: number): Promise<boolean> {
     const res: any = await this.api.requestByEmail(email, otp, false);
 
-    console.log(res);
-
     if (res.statusCode == 200 && res.hasOwnProperty('body') && Object.keys(res['body']).length != 0) {
-      this.isVerified = true;
+      // this.isVerified = true;
       this.data = res['body'];
 
       if (this.data.instagram) {
@@ -709,29 +746,29 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
       }
 
       return true;
-    } else if (!res['body']['isValid'] && res['body']['code']) {
-      switch (res['body']['code']) {
-        case 'expired_otp':
-          await this.typeLine(`YOU ENTERED AN EXPIRED CODE.`);
-          await this.typeLine(`SEND ANOTHER CODE.`, [{
-            text: 'SEND ANOTHER CODE.',
-            isResendCode: true,
-          }]);
-          break;
-        case 'incorrect_otp':
-          await this.typeLine(`YOU ENTERED AN INCORRECT CODE.`);
-          await this.typeLine(`SEND ANOTHER CODE.`, [{
-            text: 'SEND ANOTHER CODE.',
-            isResendCode: true,
-          }]);
-          this.promptInput(`LET'S TRY AGAIN > `, 'number');
-          break;
-        case 'invalid_email':
-          break;
-      }
+    // } else if (!res['body']['isValid'] && res['body']['code']) {
+    //   switch (res['body']['code']) {
+    //     case 'expired_otp':
+    //       await this.typeLine(`YOU ENTERED AN EXPIRED CODE.`);
+    //       await this.typeLine(`SEND ANOTHER CODE.`, [{
+    //         text: 'SEND ANOTHER CODE.',
+    //         isResendCode: true,
+    //       }]);
+    //       break;
+    //     case 'incorrect_otp':
+    //       await this.typeLine(`YOU ENTERED AN INCORRECT CODE.`);
+    //       await this.typeLine(`SEND ANOTHER CODE.`, [{
+    //         text: 'SEND ANOTHER CODE.',
+    //         isResendCode: true,
+    //       }]);
+    //       this.promptInput(`LET'S TRY AGAIN > `, 'number');
+    //       break;
+    //     case 'invalid_email':
+    //       break;
+    //   }
       
 
-      return false;
+    //   return false;
     } else {
       await this.typeLine(`THERE WAS AN ERROR. PLEASE TRY AGAIN LATER.`);
 
