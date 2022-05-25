@@ -107,6 +107,11 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
       if (input.toLowerCase() == 'n' || input.toLowerCase() == 'no') {
         await this.terminateNoPermissions();
       } else {
+        // datalayer
+        const script = document.createElement('script');
+        script.innerHTML = 'dataLayer.push({ event: "agree_term", });';
+        document.head.appendChild(script);
+
         this.promptInput(EMAIL_PROMPT, 'email');
       }
 
@@ -325,7 +330,6 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
 
   private async submitEmail() {
     this.email = this.inputText.toLowerCase();
-    console.log(this.email);
     
     this.typedText.push({
       text: [
@@ -341,20 +345,25 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
     });
 
     if (this.isValidEmail) {
-      // datalayer
-      const script = document.createElement('script');
-      script.innerHTML = 'dataLayer.push({ event: "email_submit", });';
-      document.head.appendChild(script);
-
       const res = await this.pullData(this.email, 0);
 
       if (res) {
         await this.typeLine('SEARCHING...', undefined, 'lightsea#16fe21');
         await this.typeLine('BUYING YOUR DATA...', undefined, 'lightsea#16fe21');
-
+        
         if (this.hasData) {
+          // datalayer
+          const script = document.createElement('script');
+          script.innerHTML = 'dataLayer.push({ event: "email_submit", });';
+          document.head.appendChild(script);
+
           this.pullDataSuccess(); 
         } else {
+          // datalayer
+          const script = document.createElement('script');
+          script.innerHTML = 'dataLayer.push({ event: "email_invalid", });';
+          document.head.appendChild(script);
+
           // Second failed email
           if (this.failedEmail) {
             await this.failedTerminate();
@@ -604,6 +613,11 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
   }
 
   private async typeAfterFirstPrompt() {
+    // datalayer
+    const script = document.createElement('script');
+    script.innerHTML = 'dataLayer.push({ event: "futureDataPrompt1", });';
+    document.head.appendChild(script);
+
     if (this.data.birthday) {
       if (this.data.birthday.sign) {
         await this.typeLine(`ASTROLOGICAL SIGN: ${this.data.birthday.emoji}`);
@@ -685,6 +699,10 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
   }
 
   private async typeAfterSecondPrompt() {
+    const script = document.createElement('script');
+    script.innerHTML = 'dataLayer.push({ event: "futureDataPrompt1", });';
+    document.head.appendChild(script);
+
     await this.typeLine(`WE'RE GOING IN!`);
 
     if (this.data.social_handles) {
@@ -730,7 +748,7 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
   private async pullData(email: string, otp: number): Promise<boolean> {
     const res: any = await this.api.requestByEmail(email, otp, false);
 
-    if (res.statusCode == 200 && res.hasOwnProperty('body') && Object.keys(res['body']).length != 0) {
+    if (res.statusCode == 200 && res.hasOwnProperty('body')) {
       // this.isVerified = true;
       this.data = res['body'];
 
@@ -782,7 +800,7 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
   }
 
   get hasData(): boolean {
-    if (this.data && (Object.keys(this.data).length > 1 || !this.data.hasOwnProperty('name'))) { 
+    if (this.data && Object.keys(this.data).length > 0) { 
       return true;
     } else {
       return false;
@@ -987,6 +1005,11 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
   }
 
   share() {
+    // datalayer
+    const script = document.createElement('script');
+    script.innerHTML = 'dataLayer.push({ event: "social_share", });';
+    document.head.appendChild(script);
+
     const navigator = window.navigator as any;
 
     if (navigator.share) {
