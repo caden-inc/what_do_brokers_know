@@ -11,7 +11,8 @@
           <a [attr.download]="t.isDownload ? 'ismydataforsale.png' : null" *ngIf="t.link" target="_blank" href="{{ t.link }}">{{ t.text }}</a>
           <span *ngIf="t.isNativeShare" class="clickable" (click)="this.share()">{{ t.text }}</span>
           <span *ngIf="t.isResendCode" class="clickable" (click)="this.resendCode()">{{ t.text }}</span>
-          <span *ngIf="!t.link && !t.isNativeShare && !t.isResendCode">{{ t.text }}</span>
+          <h1 *ngIf="t.isH1">{{ t.text }}</h1>
+          <span *ngIf="!t.link && !t.isNativeShare && !t.isResendCode && !t.isH1">{{ t.text }}</span>
         </span>
       </span>
     </p>

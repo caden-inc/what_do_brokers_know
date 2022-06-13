@@ -28,4 +28,14 @@ export class GeolocateService {
   locationStr(res: any): string {
     return res.city + ", " + res.region;
   }
+
+  isGeoRestricted(res: any): boolean {
+    if (!res.country_code) return false;
+    
+    if (res.country_code != 'US') {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

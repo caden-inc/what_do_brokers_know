@@ -3,12 +3,13 @@ import { Typed } from 'typed.ts';
 import { OnInit } from '@angular/core';
 import { GeolocateService } from '../geolocate.service';
 import { ApiService } from '../api.service';
+import { Router } from '@angular/router';
 
 const EMAIL_PROMPT = "ENTER YOUR EMAIL TO GET STARTED > ";
 
 const INIT_TEXT =  
   `**********************************************
-   ****************** CADEN.IO ******************
+   *************** CADEN TERMINAL ***************
    ************ WHAT DO DATA BROKERS ************
    *************** KNOW ABOUT ME? ***************
    **********************************************`
@@ -62,9 +63,21 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
     return this.typedText.keys();
   }
 
-  constructor(private geo: GeolocateService, private api: ApiService) {}
+  constructor(private geo: GeolocateService, private api: ApiService, private router: Router) {}
 
   async ngOnInit() {
+    try {
+      const ip = await this.geo.getIpAddress();
+      const locRes = await this.geo.getLocationFromIp(ip);
+      const geoRestrict = this.geo.isGeoRestricted(locRes);
+  
+      if (geoRestrict) {
+        this.router.navigateByUrl('geo-error');
+      }
+    } catch (e) {
+      console.log(e);
+    }
+
     await this.initialType();
   }
 
@@ -190,7 +203,7 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
   }
 
   private async failedTerminate() {
-    await this.addLine('TERMINATING C:\\\\creep.exe', '#f32a9d');
+    // await this.addLine('TERMINATING C:\\\\creep.exe', '#f32a9d');
     await this.addLine('TERMINATED.', '#16fe21');
 
     await this.addLine(`Well look at that, we couldn’t find you! (yet)`, undefined, undefined, 750);
@@ -232,7 +245,7 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
   }
 
   private async terminateNoPermissions() {
-    await this.addLine('TERMINATING C:\\\\creep.exe', 'red');
+    // await this.addLine('TERMINATING C:\\\\creep.exe', 'red');
     await this.addLine('TERMINATED.', '#16fe21');
 
     await this.addLine(`Not sure what this is?`, undefined, undefined, 750);
@@ -279,7 +292,7 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
   }
 
   private async terminate() {
-    await this.addLine('TERMINATING C:\\\\creep.exe', 'red');
+    // await this.addLine('TERMINATING C:\\\\creep.exe', 'red');
     await this.addLine('TERMINATED.', '#16fe21');
 
     await this.addLine(`Want to know WTF just happened?`, undefined, undefined, 750);
@@ -822,7 +835,12 @@ export class TerminalComponent implements OnInit, AfterViewChecked {
 
   async initialType() {
     for (let str of INIT_TEXT.split('\n')) {
-      await this.addLine(str);
+      await this.addLine(undefined, undefined, [
+        {
+          text: str,
+          isH1: true
+        }
+      ]);
     }
 
     await this.typeLine(LOAD_TEXT);
